@@ -1,6 +1,6 @@
 {
   "name": "@iodigital/vite-plugin-msw",
-  "description": "Load MSW via Vite",
+  "description": "Mock Service Worker browser and node integration for Vite",
   "private": true,
   "version": "0.1.0",
   "author": {
