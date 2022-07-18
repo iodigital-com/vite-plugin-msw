@@ -1,7 +1,6 @@
 {
   "name": "@iodigital/vite-plugin-msw",
   "description": "Mock Service Worker browser and node integration for Vite",
-  "private": true,
   "version": "0.1.0",
   "author": {
     "name": "iO",
@@ -9,6 +8,8 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",
