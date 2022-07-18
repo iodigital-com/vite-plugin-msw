@@ -13,5 +13,5 @@
     "lib": ["esnext", "dom"],
     "skipLibCheck": true
   },
-  "include": ["examples/**/*.ts", "examples/**/*.d.ts", "examples/**/*.tsx"]
+  "include": ["examples/**/*.ts", "examples/**/*.d.ts"]
 }

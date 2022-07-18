@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 fetch(window.location.origin + "/api/health")
   .then((res) => res.json())
   .then((json) => {
