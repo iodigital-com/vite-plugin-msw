@@ -1,5 +1,7 @@
 # @iodigital/vite-plugin-msw
 
+Mock Service Worker browser and node integration for Vite.
+
 ## Usage
 
 ### Install
