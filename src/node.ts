@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { NextFunction, NextHandleFunction } from "connect";
-import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
-import type { RequestHandler } from "msw";
-import { parseIsomorphicRequest, handleRequest } from "msw";
 import { EventEmitter } from "events";
 import { Headers } from "headers-polyfill";
+import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
+import type { RequestHandler } from "msw";
+import { handleRequest, MockedRequest } from "msw";
 
 const emitter = new EventEmitter();
 
@@ -24,11 +24,10 @@ export const createNodeMiddleware =
       if (!req.method || !req.url) {
         next();
       } else {
-        const mockedRequest = parseIsomorphicRequest({
+        const mockedRequest = new MockedRequest(new URL(req.url, serverOrigin), {
           id: "",
           method: req.method,
           // Treat all relative URLs as the ones coming from the server.
-          url: new URL(req.url, serverOrigin),
           headers: new Headers(sanitizeHeaders(req.headers)),
           credentials: "omit",
           // @ts-ignore
