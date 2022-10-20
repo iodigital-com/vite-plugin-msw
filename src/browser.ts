@@ -2,15 +2,14 @@
 import type { NextFunction, NextHandleFunction } from "connect";
 import type { IncomingMessage, ServerResponse } from "http";
 import { resolve } from "path";
-// import { createReadStream } from "node:fs";
 import fsExtra from "fs-extra";
 import { createRequire } from "node:module";
 
 const { copy, readFile } = fsExtra;
 const require = createRequire(import.meta.url);
-
 const swFileName = "mockServiceWorker.js";
-const mswPath = require.resolve(`msw/lib/${swFileName}`);
+const mswDir = require.resolve(`msw`);
+const mswPath = resolve(mswDir, `../../lib/${swFileName}`);
 
 export const createBrowserMiddleware = (): NextHandleFunction => {
   return async (req: IncomingMessage, res: ServerResponse, next: NextFunction) => {

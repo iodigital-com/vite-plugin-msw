@@ -1,6 +1,5 @@
 import type { RequestHandler } from "msw";
-import type { Plugin } from "vite";
-import bodyParser from "body-parser";
+import type { Plugin, ResolvedServerOptions, ServerOptions } from "vite";
 import { createNodeMiddleware } from "./node.js";
 import { buildMswForBrowser, createBrowserMiddleware } from "./browser.js";
 
@@ -36,18 +35,14 @@ const browserIntegration = ({ build }: BrowserIntegrationOptions): Plugin => {
   };
 };
 
-const getNodeIntegration = (handlers: RequestHandler[]): Plugin => ({
-  name: "vite-plugin-msw:node-integration",
-  configureServer(devServer) {
-    const { server } = devServer.config;
-    const port = server.port ? `:${server.port}` : "";
-    const host = server.host || "localhost";
-    const https = server.https ? "https" : "http";
-    const serverOrigin = `${https}://${host}${port}`;
-    devServer.middlewares.use(bodyParser.json());
-    devServer.middlewares.use(createNodeMiddleware(serverOrigin)(...handlers));
-  },
-});
+const getNodeIntegration = (handlers: RequestHandler[]): Plugin => {
+  return {
+    name: "vite-plugin-msw:node-integration",
+    configureServer(devServer) {
+      devServer.middlewares.use(createNodeMiddleware()(...handlers));
+    },
+  };
+};
 
 const defaultVitePluginMswOptions: VitePluginMswOptions = { mode: "browser", handlers: undefined, build: false };
 

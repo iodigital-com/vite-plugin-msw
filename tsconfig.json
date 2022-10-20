@@ -5,7 +5,9 @@
     "module": "esnext",
     "moduleResolution": "NodeNext",
     "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "esModuleInterop": true
   },
-  "include": ["./src/**/*.ts", "src/**/*.d.ts"]
+  "include": ["src"],
+  "exclude": ["**/dist", "**/node_modules"]
 }

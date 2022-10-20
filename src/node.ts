@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { NextFunction, NextHandleFunction } from "connect";
 import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
-import type { RequestHandler } from "msw";
-import { parseIsomorphicRequest, handleRequest } from "msw";
-import { EventEmitter } from "events";
+import { MockedRequest, RequestHandler, handleRequest } from "msw";
+import { StrictEventEmitter } from "strict-event-emitter";
 import { Headers } from "headers-polyfill";
+import { encodeBuffer } from "@mswjs/interceptors";
 
-const emitter = new EventEmitter();
+const emitter = new StrictEventEmitter();
 
 const sanitizeHeaders = (headers: IncomingHttpHeaders) =>
   Object.entries({ ...headers }).reduce((acc, [key, value]) => {
@@ -18,21 +18,20 @@ const sanitizeHeaders = (headers: IncomingHttpHeaders) =>
   }, {});
 
 export const createNodeMiddleware =
-  (serverOrigin: string) =>
+  (serverOrigin: string = `http://localhost`) =>
   (...handlers: RequestHandler[]): NextHandleFunction => {
     return async (req: IncomingMessage, res: ServerResponse, next: NextFunction) => {
       if (!req.method || !req.url) {
         next();
       } else {
-        const mockedRequest = parseIsomorphicRequest({
-          id: "",
+        // @ts-ignore
+        const requestBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+        // Treat all relative URLs as the ones coming from the server.
+        const mockedRequest = new MockedRequest(new URL(req.url, serverOrigin), {
           method: req.method,
-          // Treat all relative URLs as the ones coming from the server.
-          url: new URL(req.url, serverOrigin),
           headers: new Headers(sanitizeHeaders(req.headers)),
           credentials: "omit",
-          // @ts-ignore
-          body: req.body,
+          body: encodeBuffer(requestBody),
         });
 
         await handleRequest(
@@ -51,13 +50,12 @@ export const createNodeMiddleware =
                */
               baseUrl: serverOrigin,
             },
-            onMockedResponseSent(mockedResponse) {
+            onMockedResponse(mockedResponse) {
               const { status, statusText, headers, body } = mockedResponse;
               res.statusCode = status;
               headers.forEach((value, name) => {
                 res.setHeader(name, value);
               });
-
               res.end(body ? body : statusText);
             },
             onPassthroughResponse() {
