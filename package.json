@@ -15,7 +15,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
     }
   },
   "main": "./dist/index.mjs",
