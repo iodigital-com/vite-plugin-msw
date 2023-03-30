@@ -2,11 +2,11 @@
 import type { NextFunction, NextHandleFunction } from "connect";
 import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 import { MockedRequest, RequestHandler, handleRequest } from "msw";
-import { StrictEventEmitter } from "strict-event-emitter";
+import { Emitter } from "strict-event-emitter";
 import { Headers } from "headers-polyfill";
 import { encodeBuffer } from "@mswjs/interceptors";
 
-const emitter = new StrictEventEmitter();
+const emitter = new Emitter();
 
 const sanitizeHeaders = (headers: IncomingHttpHeaders) =>
   Object.entries({ ...headers }).reduce((acc, [key, value]) => {

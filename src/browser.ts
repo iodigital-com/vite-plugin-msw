@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { NextFunction, NextHandleFunction } from "connect";
 import type { IncomingMessage, ServerResponse } from "http";
 import { resolve } from "path";
