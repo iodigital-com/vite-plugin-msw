@@ -1,6 +1,3 @@
-const tsConfig = require("./tsconfig.json");
-const tsConfigExamples = require("./tsconfig.examples.json");
-
 require("@rushstack/eslint-patch/modern-module-resolution");
 
 module.exports = {
@@ -23,7 +20,7 @@ module.exports = {
       },
     },
     {
-      files: [...tsConfig.include],
+      files: ["*.ts"],
       parser: "@typescript-eslint/parser",
       parserOptions: {
         sourceType: "module",
@@ -33,7 +30,7 @@ module.exports = {
       extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
     },
     {
-      files: [...tsConfigExamples.include],
+      files: ["examples/**/*.ts"],
       parser: "@typescript-eslint/parser",
       parserOptions: {
         sourceType: "module",

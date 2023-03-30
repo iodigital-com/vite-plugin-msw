@@ -18,7 +18,7 @@ const sanitizeHeaders = (headers: IncomingHttpHeaders) =>
   }, {});
 
 export const createNodeMiddleware =
-  (serverOrigin: string = `http://localhost`) =>
+  (serverOrigin = `http://localhost`) =>
   (...handlers: RequestHandler[]): NextHandleFunction => {
     return async (req: IncomingMessage, res: ServerResponse, next: NextFunction) => {
       if (!req.method || !req.url) {

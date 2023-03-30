@@ -1,0 +1,39 @@
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+      
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run build
+        run: npm run build
+
+      - name: Run linting
+        run: npm run lint
+      
+      - name: Run Playwright tests
+        run: npm run test
+      
+      - name: Test report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tests results
+          path: tests/test-results.xml
+          reporter: jest-junit

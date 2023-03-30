@@ -8,6 +8,6 @@
     "declaration": true,
     "esModuleInterop": true
   },
-  "include": ["src"],
+  "include": ["src", "tests", "./*.ts"],
   "exclude": ["**/dist", "**/node_modules"]
 }

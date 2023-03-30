@@ -1,5 +1,5 @@
 import type { RequestHandler } from "msw";
-import type { Plugin, ResolvedServerOptions, ServerOptions } from "vite";
+import type { Plugin } from "vite";
 import { createNodeMiddleware } from "./node.js";
 import { buildMswForBrowser, createBrowserMiddleware } from "./browser.js";
 
