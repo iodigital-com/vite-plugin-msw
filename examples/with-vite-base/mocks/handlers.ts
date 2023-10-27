@@ -1,15 +1,20 @@
-import { rest } from "msw";
+import { HttpResponse, http } from "msw";
+
+const NotFoundResponse = new HttpResponse("Not found", {
+  status: 404,
+  headers: {
+    "Content-Type": "text/plain",
+  },
+});
 
 export const handlers = [
-  rest.get("/api/health", (req, res, ctx) => {
-    return res(
-      ctx.json({
-        date: Date.now(),
-        status: "OK",
-      })
-    );
-  }),
+  http.get("/api/health", () =>
+    HttpResponse.json({
+      date: Date.now(),
+      status: "OK",
+    }),
+  ),
 
-  rest.all("/api", (req, res, ctx) => res(ctx.status(404))),
-  rest.all("/api/*", (req, res, ctx) => res(ctx.status(404))),
+  http.all("/api", () => NotFoundResponse),
+  http.all("/api/*", () => NotFoundResponse),
 ];

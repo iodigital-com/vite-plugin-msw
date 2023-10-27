@@ -1,12 +1,40 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { NextFunction, NextHandleFunction } from "connect";
-import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
-import { MockedRequest, RequestHandler, handleRequest } from "msw";
+import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "node:http";
+import { randomUUID } from "node:crypto";
+import { RequestHandler, handleRequest } from "msw";
 import { Emitter } from "strict-event-emitter";
 import { Headers } from "headers-polyfill";
 import { encodeBuffer } from "@mswjs/interceptors";
 
 const emitter = new Emitter();
+
+async function transformReadableStramToUint8Array(stream: ReadableStream): Promise<Uint8Array> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(new Uint8Array(value));
+  }
+
+  let totalLength = 0;
+  for (let i = 0; i < chunks.length; i++) {
+    totalLength += chunks[i].length;
+  }
+
+  const result = new Uint8Array(totalLength);
+
+  let offset = 0;
+  for (let i = 0; i < chunks.length; i++) {
+    result.set(chunks[i], offset);
+    offset += chunks[i].length;
+  }
+
+  return result;
+}
 
 const sanitizeHeaders = (headers: IncomingHttpHeaders) =>
   Object.entries({ ...headers }).reduce((acc, [key, value]) => {
@@ -24,18 +52,23 @@ export const createNodeMiddleware =
       if (!req.method || !req.url) {
         next();
       } else {
-        // @ts-ignore
-        const requestBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+        let requestBody: string;
+        if (!["GET", "HEAD"].includes(req.method)) {
+          // @ts-ignore
+          requestBody = encodeBuffer(typeof req.body === "string" ? req.body : JSON.stringify(req.body));
+        }
+
         // Treat all relative URLs as the ones coming from the server.
-        const mockedRequest = new MockedRequest(new URL(req.url, serverOrigin), {
+        const mockedRequest = new Request(new URL(req.url, serverOrigin), {
           method: req.method,
           headers: new Headers(sanitizeHeaders(req.headers)),
           credentials: "omit",
-          body: encodeBuffer(requestBody),
+          body: requestBody,
         });
 
         await handleRequest(
           mockedRequest,
+          randomUUID(),
           handlers,
           {
             onUnhandledRequest: () => null,
@@ -50,18 +83,22 @@ export const createNodeMiddleware =
                */
               baseUrl: serverOrigin,
             },
-            onMockedResponse(mockedResponse) {
+            async onMockedResponse(mockedResponse) {
               const { status, statusText, headers, body } = mockedResponse;
               res.statusCode = status;
               headers.forEach((value, name) => {
                 res.setHeader(name, value);
               });
-              res.end(body ? body : statusText);
+
+              // ReadableStream to Uint8Array
+              let returnBody;
+              if (body) returnBody = await transformReadableStramToUint8Array(body);
+              res.end(returnBody ? returnBody : statusText);
             },
             onPassthroughResponse() {
               next();
             },
-          }
+          },
         );
       }
     };

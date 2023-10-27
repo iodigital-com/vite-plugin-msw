@@ -8,7 +8,7 @@ const { copy, readFile } = fsExtra;
 const require = createRequire(import.meta.url);
 const swFileName = "mockServiceWorker.js";
 const mswDir = require.resolve(`msw`);
-const mswPath = resolve(mswDir, `../../lib/${swFileName}`);
+const mswPath = resolve(mswDir, `../../${swFileName}`);
 
 export const createBrowserMiddleware = (): NextHandleFunction => {
   return async (req: IncomingMessage, res: ServerResponse, next: NextFunction) => {
@@ -22,7 +22,9 @@ export const createBrowserMiddleware = (): NextHandleFunction => {
       res.statusCode = 200;
       res.end(swContent);
     } catch (error) {
-      res.end(error);
+      console.error(error);
+      res.statusCode = 500;
+      res.end(error.toString());
     }
   };
 };
