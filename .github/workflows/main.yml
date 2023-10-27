@@ -6,30 +6,33 @@ on:
     branches: [main]
 jobs:
   tests:
-    timeout-minutes: 60
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
-      
+          node-version: 18
+
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
-      
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
       - name: Run build
         run: npm run build
+      
+      - name: Run typing tests
+        run: npm run test:type
 
-      - name: Run linting
-        run: npm run lint
-      
+      - name: Run ESLint tests
+        run: npm run test:lint
+
       - name: Run Playwright tests
-        run: npm run test
-      
+        run: npm run test:e2e
+
       - name: Test report
         uses: dorny/test-reporter@v1
         if: success() || failure()
